@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 interface ChatInputProps {
   disabled?: boolean;
@@ -6,7 +6,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
 
   async function handleSubmit() {
     const message = value.trim();
@@ -14,13 +14,13 @@ export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
       return;
     }
 
-    setValue('');
+    setValue("");
     await onSend(message);
   }
 
   return (
     <div className="border-t border-slate-200/80 bg-white/75 px-4 py-4 backdrop-blur-xl sm:px-6">
-      <div className="mx-auto flex max-w-3xl items-end gap-3 rounded-[28px] border border-slate-200 bg-white p-3 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+      <div className="mx-auto flex max-w-3xl items-center gap-3 rounded-[50px] border border-slate-200 bg-white p-1 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
         <textarea
           rows={1}
           value={value}
@@ -28,7 +28,7 @@ export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
           placeholder="Ask anything..."
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
+            if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();
               void handleSubmit();
             }
@@ -39,7 +39,7 @@ export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
           type="button"
           disabled={disabled || !value.trim()}
           onClick={() => void handleSubmit()}
-          className="inline-flex h-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="mr-2 inline-flex h-[40px] shrink-0 items-center justify-center rounded-[50px] bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           Send
         </button>

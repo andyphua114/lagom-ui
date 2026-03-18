@@ -1,9 +1,11 @@
-import type { ChatResponse } from '../types/chat';
-import type { ChatSettings } from '../types/settings';
+import type { ChatResponse } from "../types/chat";
+import type { ChatSettings } from "../types/settings";
 
 function buildChatUrl(settings: ChatSettings) {
-  const baseUrl = settings.apiBaseUrl.replace(/\/+$/, '');
-  const chatPath = settings.chatPath.startsWith('/') ? settings.chatPath : `/${settings.chatPath}`;
+  const baseUrl = settings.apiBaseUrl.replace(/\/+$/, "");
+  const chatPath = settings.chatPath.startsWith("/")
+    ? settings.chatPath
+    : `/${settings.chatPath}`;
   return `${baseUrl}${chatPath}`;
 }
 
@@ -15,14 +17,16 @@ export async function sendMessage(
 
   try {
     response = await fetch(buildChatUrl(settings), {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ message }),
     });
   } catch {
-    throw new Error('Unable to reach the backend. Check that the API server is running.');
+    throw new Error(
+      "An error occurred. If the problem persists, contact helpdesk.",
+    );
   }
 
   const responseText = await response.text();
@@ -36,7 +40,7 @@ export async function sendMessage(
         throw new Error(responseText);
       }
 
-      throw new Error('Backend response was not valid JSON.');
+      throw new Error("Backend response was not valid JSON.");
     }
   }
 
@@ -52,12 +56,12 @@ export async function sendMessage(
 
   const data = parsedBody as Partial<ChatResponse>;
 
-  if (typeof data.answer !== 'string') {
-    throw new Error('Backend response is missing a valid answer field.');
+  if (typeof data.answer !== "string") {
+    throw new Error("Backend response is missing a valid answer field.");
   }
 
-  if (data.reasoning !== undefined && typeof data.reasoning !== 'string') {
-    throw new Error('Backend response contains an invalid reasoning field.');
+  if (data.reasoning !== undefined && typeof data.reasoning !== "string") {
+    throw new Error("Backend response contains an invalid reasoning field.");
   }
 
   return {

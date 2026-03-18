@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { useChatSettings } from '../hooks/useChatSettings';
-import { useAutoScroll } from '../hooks/useAutoScroll';
-import { sendMessage } from '../services/api';
-import type { ChatMessage } from '../types/chat';
-import { ChatInput } from './ChatInput';
-import { MessageBubble } from './MessageBubble';
-import { SettingsModal } from './SettingsModal';
+import { useState } from "react";
+import { useChatSettings } from "../hooks/useChatSettings";
+import { useAutoScroll } from "../hooks/useAutoScroll";
+import { sendMessage } from "../services/api";
+import type { ChatMessage } from "../types/chat";
+import { ChatInput } from "./ChatInput";
+import { MessageBubble } from "./MessageBubble";
+import { SettingsModal } from "./SettingsModal";
 
 const initialAssistantMessage: ChatMessage = {
-  id: 'welcome',
-  role: 'assistant',
-  content: 'How can I help today?',
+  id: "welcome",
+  role: "assistant",
+  content: "",
 };
 
 function createMessageId() {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
   }
 
@@ -23,7 +23,9 @@ function createMessageId() {
 
 export function ChatPage() {
   const { settings, updateSettings, resetSettings } = useChatSettings();
-  const [messages, setMessages] = useState<ChatMessage[]>([initialAssistantMessage]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    initialAssistantMessage,
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -32,7 +34,7 @@ export function ChatPage() {
   async function handleSendMessage(message: string) {
     const userMessage: ChatMessage = {
       id: createMessageId(),
-      role: 'user',
+      role: "user",
       content: message,
     };
 
@@ -45,7 +47,7 @@ export function ChatPage() {
 
       const assistantMessage: ChatMessage = {
         id: createMessageId(),
-        role: 'assistant',
+        role: "assistant",
         content: response.answer,
         reasoning: response.reasoning,
       };
@@ -55,7 +57,7 @@ export function ChatPage() {
       const messageText =
         caughtError instanceof Error
           ? caughtError.message
-          : 'Something went wrong while contacting the assistant.';
+          : "Something went wrong while contacting the assistant.";
 
       setError(messageText);
     } finally {
@@ -73,12 +75,9 @@ export function ChatPage() {
                 <div className="inline-flex items-center rounded-full border border-white/70 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-500 shadow-[0_10px_35px_rgba(15,23,42,0.05)]">
                   {settings.assistantName}
                 </div>
-                <h1 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
-                  A clean, modern interface for your local AI workflow.
-                </h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
-                  Ask a question, get the answer instantly, and expand reasoning only
-                  when you want the extra detail.
+                  Ask a question, get the answer, and expand reasoning only when
+                  you want the details.
                 </p>
               </div>
 
@@ -93,7 +92,7 @@ export function ChatPage() {
             </div>
           </header>
 
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -105,7 +104,7 @@ export function ChatPage() {
             {loading ? (
               <div className="flex justify-start">
                 <div className="rounded-full border border-white/80 bg-white/90 px-4 py-2 text-sm text-slate-500 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
-                  Thinking...
+                  <span className="animate-loading">Thinking...</span>
                 </div>
               </div>
             ) : null}
