@@ -32,33 +32,74 @@ export function ChatPage() {
   const endRef = useAutoScroll([messages, loading, error]);
 
   async function handleSendMessage(message: string) {
+    const assistantMessageId = createMessageId();
     const userMessage: ChatMessage = {
       id: createMessageId(),
       role: "user",
       content: message,
     };
+    const assistantPlaceholder: ChatMessage = {
+      id: assistantMessageId,
+      role: "assistant",
+      content: "",
+      pending: true,
+    };
 
     setError(null);
-    setMessages((currentMessages) => [...currentMessages, userMessage]);
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      userMessage,
+      assistantPlaceholder,
+    ]);
     setLoading(true);
 
     try {
-      const response = await sendMessage(message, settings);
+      const response = await sendMessage(message, settings, {
+        onAnswerDelta(delta) {
+          setMessages((currentMessages) =>
+            currentMessages.map((currentMessage) =>
+              currentMessage.id === assistantMessageId
+                ? {
+                    ...currentMessage,
+                    content: currentMessage.content + delta,
+                  }
+                : currentMessage,
+            ),
+          );
+        },
+      });
 
-      const assistantMessage: ChatMessage = {
-        id: createMessageId(),
-        role: "assistant",
-        content: response.answer,
-        reasoning: response.reasoning,
-      };
-
-      setMessages((currentMessages) => [...currentMessages, assistantMessage]);
+      setMessages((currentMessages) =>
+        currentMessages.map((currentMessage) =>
+          currentMessage.id === assistantMessageId
+            ? {
+                ...currentMessage,
+                content: response.answer,
+                reasoning: response.reasoning,
+                pending: false,
+              }
+            : currentMessage,
+        ),
+      );
     } catch (caughtError) {
       const messageText =
         caughtError instanceof Error
           ? caughtError.message
           : "Something went wrong while contacting the assistant.";
 
+      setMessages((currentMessages) =>
+        currentMessages
+          .filter(
+            (currentMessage) =>
+              currentMessage.id !== assistantMessageId ||
+              currentMessage.content.length > 0,
+          )
+          .map((currentMessage) =>
+            currentMessage.id === assistantMessageId
+              ? { ...currentMessage, pending: false }
+              : currentMessage,
+          ),
+      );
       setError(messageText);
     } finally {
       setLoading(false);
@@ -100,14 +141,6 @@ export function ChatPage() {
                 defaultExpandReasoning={settings.autoExpandReasoning}
               />
             ))}
-
-            {loading ? (
-              <div className="flex justify-start">
-                <div className="rounded-full border border-white/80 bg-white/90 px-4 py-2 text-sm text-slate-500 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
-                  <span className="animate-loading">Thinking...</span>
-                </div>
-              </div>
-            ) : null}
 
             {error ? (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">

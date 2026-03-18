@@ -5,6 +5,7 @@ export interface ChatMessage {
   role: MessageRole;
   content: string;
   reasoning?: string;
+  pending?: boolean;
 }
 
 export interface ChatResponse {
