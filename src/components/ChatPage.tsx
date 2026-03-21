@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useChatSettings } from "../hooks/useChatSettings";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { sendMessage } from "../services/api";
@@ -21,6 +21,14 @@ function createMessageId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function createSessionId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 export function ChatPage() {
   const { settings, updateSettings, resetSettings } = useChatSettings();
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -29,7 +37,12 @@ export function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
   const endRef = useAutoScroll([messages, loading, error]);
+
+  useEffect(() => {
+    setSessionId(createSessionId());
+  }, []);
 
   async function handleSendMessage(message: string) {
     const assistantMessageId = createMessageId();
@@ -54,7 +67,7 @@ export function ChatPage() {
     setLoading(true);
 
     try {
-      const response = await sendMessage(message, settings, {
+      const response = await sendMessage(message, settings, sessionId, {
         onAnswerDelta(delta) {
           setMessages((currentMessages) =>
             currentMessages.map((currentMessage) =>

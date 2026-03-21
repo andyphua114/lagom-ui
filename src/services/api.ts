@@ -224,8 +224,16 @@ async function parseStreamingResponse(
 
   if (remainingText) {
     const trailingEvent = useSse
-      ? parseSseBuffer(`${remainingText}\n\n`, chatResponse, options.onAnswerDelta)
-      : parseNdjsonBuffer(`${remainingText}\n`, chatResponse, options.onAnswerDelta);
+      ? parseSseBuffer(
+          `${remainingText}\n\n`,
+          chatResponse,
+          options.onAnswerDelta,
+        )
+      : parseNdjsonBuffer(
+          `${remainingText}\n`,
+          chatResponse,
+          options.onAnswerDelta,
+        );
 
     sawStreamEvent = sawStreamEvent || trailingEvent.sawEvent;
 
@@ -244,6 +252,7 @@ async function parseStreamingResponse(
 export async function sendMessage(
   message: string,
   settings: ChatSettings,
+  sessionId: string,
   options: SendMessageOptions = {},
 ): Promise<ChatResponse> {
   let response: Response;
@@ -254,7 +263,7 @@ export async function sendMessage(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, sessionId }),
     });
   } catch {
     throw new Error(
