@@ -1,5 +1,6 @@
 import type { ChatResponse } from "../types/chat";
 import type { ChatSettings } from "../types/settings";
+import { parseErrorResponse, type AuthenticatedFetch } from "./http";
 
 interface SendMessageOptions {
   onAnswerDelta?: (delta: string) => void;
@@ -10,44 +11,6 @@ interface StreamEvent {
   delta?: string;
   answer?: string;
   reasoning?: string;
-}
-
-function buildChatUrl(settings: ChatSettings) {
-  const baseUrl = settings.apiBaseUrl.replace(/\/+$/, "");
-  const chatPath = settings.chatPath.startsWith("/")
-    ? settings.chatPath
-    : `/${settings.chatPath}`;
-  return `${baseUrl}${chatPath}`;
-}
-
-async function parseErrorResponse(response: Response) {
-  const responseText = await response.text();
-
-  if (!responseText) {
-    throw new Error(`Request failed with status ${response.status}`);
-  }
-
-  let errorBody:
-    | {
-        detail?: string;
-        message?: string;
-      }
-    | undefined;
-
-  try {
-    errorBody = JSON.parse(responseText) as {
-      detail?: string;
-      message?: string;
-    };
-  } catch {
-    throw new Error(responseText);
-  }
-
-  throw new Error(
-    errorBody.detail ??
-      errorBody.message ??
-      `Request failed with status ${response.status}`,
-  );
 }
 
 function parseJsonResponse(responseText: string): ChatResponse {
@@ -253,16 +216,14 @@ export async function sendMessage(
   message: string,
   settings: ChatSettings,
   sessionId: string,
+  authenticatedFetch: AuthenticatedFetch,
   options: SendMessageOptions = {},
 ): Promise<ChatResponse> {
   let response: Response;
 
   try {
-    response = await fetch(buildChatUrl(settings), {
+    response = await authenticatedFetch(settings.chatPath, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({ message, sessionId }),
     });
   } catch {

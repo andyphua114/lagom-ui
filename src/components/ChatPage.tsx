@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { useChatSettings } from "../hooks/useChatSettings";
+import { useEffect, useState } from "react";
+import { useAuth } from "../auth/useAuth";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { sendMessage } from "../services/api";
 import type { ChatMessage } from "../types/chat";
+import type { ChatSettings } from "../types/settings";
 import { ChatInput } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
 import { SettingsModal } from "./SettingsModal";
@@ -29,8 +30,18 @@ function createSessionId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function ChatPage() {
-  const { settings, updateSettings, resetSettings } = useChatSettings();
+interface ChatPageProps {
+  resetSettings: () => void;
+  settings: ChatSettings;
+  updateSettings: (settings: ChatSettings) => void;
+}
+
+export function ChatPage({
+  resetSettings,
+  settings,
+  updateSettings,
+}: ChatPageProps) {
+  const { authenticatedFetch, logout, user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([
     initialAssistantMessage,
   ]);
@@ -67,20 +78,26 @@ export function ChatPage() {
     setLoading(true);
 
     try {
-      const response = await sendMessage(message, settings, sessionId, {
-        onAnswerDelta(delta) {
-          setMessages((currentMessages) =>
-            currentMessages.map((currentMessage) =>
-              currentMessage.id === assistantMessageId
-                ? {
-                    ...currentMessage,
-                    content: currentMessage.content + delta,
-                  }
-                : currentMessage,
-            ),
-          );
+      const response = await sendMessage(
+        message,
+        settings,
+        sessionId,
+        authenticatedFetch,
+        {
+          onAnswerDelta(delta) {
+            setMessages((currentMessages) =>
+              currentMessages.map((currentMessage) =>
+                currentMessage.id === assistantMessageId
+                  ? {
+                      ...currentMessage,
+                      content: currentMessage.content + delta,
+                    }
+                  : currentMessage,
+              ),
+            );
+          },
         },
-      });
+      );
 
       setMessages((currentMessages) =>
         currentMessages.map((currentMessage) =>
@@ -135,14 +152,28 @@ export function ChatPage() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsSettingsOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:border-slate-200 hover:text-slate-900"
-              >
-                <span className="text-base leading-none">+</span>
-                Settings
-              </button>
+              <div className="flex items-center gap-3">
+                <div className="hidden rounded-full border border-white/80 bg-white/80 px-4 py-2 text-sm text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.06)] sm:block">
+                  {user?.displayName ?? user?.username}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:border-slate-200 hover:text-slate-900"
+                >
+                  <span className="text-base leading-none">+</span>
+                  Settings
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => void logout()}
+                  className="inline-flex items-center rounded-full border border-slate-200 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+                >
+                  Log out
+                </button>
+              </div>
             </div>
           </header>
 

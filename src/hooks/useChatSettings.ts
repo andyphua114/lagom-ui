@@ -1,12 +1,20 @@
-import { useEffect, useState } from 'react';
-import { DEFAULT_CHAT_SETTINGS, SETTINGS_STORAGE_KEY } from '../config';
-import type { ChatSettings } from '../types/settings';
+import { useEffect, useState } from "react";
+import {
+  DEFAULT_CHAT_SETTINGS,
+  SETTINGS_STORAGE_KEY,
+  normalizeApiBaseUrl,
+  normalizeApiPath,
+} from "../config";
+import type { ChatSettings } from "../types/settings";
 
-function normalizeChatSettings(value: Partial<ChatSettings> | null | undefined): ChatSettings {
+function normalizeChatSettings(
+  value: Partial<ChatSettings> | null | undefined,
+): ChatSettings {
   return {
-    apiBaseUrl: value?.apiBaseUrl?.trim() || DEFAULT_CHAT_SETTINGS.apiBaseUrl,
-    chatPath: value?.chatPath?.trim() || DEFAULT_CHAT_SETTINGS.chatPath,
-    assistantName: value?.assistantName?.trim() || DEFAULT_CHAT_SETTINGS.assistantName,
+    apiBaseUrl: normalizeApiBaseUrl(value?.apiBaseUrl),
+    chatPath: normalizeApiPath(value?.chatPath, DEFAULT_CHAT_SETTINGS.chatPath),
+    assistantName:
+      value?.assistantName?.trim() || DEFAULT_CHAT_SETTINGS.assistantName,
     autoExpandReasoning:
       value?.autoExpandReasoning ?? DEFAULT_CHAT_SETTINGS.autoExpandReasoning,
   };

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { DEFAULT_CHAT_SETTINGS } from '../config';
-import type { ChatSettings } from '../types/settings';
+import { useEffect, useState } from "react";
+import { CAN_EDIT_API_BASE_URL, DEFAULT_CHAT_SETTINGS } from "../config";
+import type { ChatSettings } from "../types/settings";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -31,15 +31,15 @@ export function SettingsModal({
     }
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         onClose();
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
 
@@ -49,11 +49,7 @@ export function SettingsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/30 px-4 py-8 backdrop-blur-sm">
-      <div
-        className="absolute inset-0"
-        aria-hidden="true"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0" aria-hidden="true" onClick={onClose} />
 
       <section className="relative z-10 w-full max-w-lg rounded-[32px] border border-white/70 bg-white/95 p-6 shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
         <div className="flex items-start justify-between gap-4">
@@ -75,29 +71,40 @@ export function SettingsModal({
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
             aria-label="Close settings"
           >
-            ×
+            &times;
           </button>
         </div>
 
         <div className="mt-6 space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700">API base URL</span>
-            <input
-              type="text"
-              value={draftSettings.apiBaseUrl}
-              onChange={(event) =>
-                setDraftSettings((current) => ({
-                  ...current,
-                  apiBaseUrl: event.target.value,
-                }))
-              }
-              placeholder={DEFAULT_CHAT_SETTINGS.apiBaseUrl}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-300 focus:bg-white"
-            />
-          </label>
+          {CAN_EDIT_API_BASE_URL ? (
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">
+                API base URL
+              </span>
+              <input
+                type="text"
+                value={draftSettings.apiBaseUrl}
+                onChange={(event) =>
+                  setDraftSettings((current) => ({
+                    ...current,
+                    apiBaseUrl: event.target.value,
+                  }))
+                }
+                placeholder={DEFAULT_CHAT_SETTINGS.apiBaseUrl}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-300 focus:bg-white"
+              />
+            </label>
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+              The backend origin is locked in production and comes from the
+              `VITE_API_BASE_URL` build setting.
+            </div>
+          )}
 
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Chat endpoint path</span>
+            <span className="text-sm font-medium text-slate-700">
+              Chat endpoint path
+            </span>
             <input
               type="text"
               value={draftSettings.chatPath}
@@ -113,7 +120,9 @@ export function SettingsModal({
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Assistant name</span>
+            <span className="text-sm font-medium text-slate-700">
+              Assistant name
+            </span>
             <input
               type="text"
               value={draftSettings.assistantName}
