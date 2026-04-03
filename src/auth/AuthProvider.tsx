@@ -36,6 +36,7 @@ export function AuthProvider({ apiBaseUrl, children }: AuthProviderProps) {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const refreshInFlightRef = useRef<Promise<string | null> | null>(null);
+  const effectRan = useRef(false);
 
   function resetAuth() {
     setAccessToken(null);
@@ -85,7 +86,8 @@ export function AuthProvider({ apiBaseUrl, children }: AuthProviderProps) {
   }
 
   useEffect(() => {
-    let isCancelled = false;
+    if (effectRan.current) return;
+    effectRan.current = true;
 
     setAccessToken(null);
     setStatus("loading");
@@ -94,17 +96,8 @@ export function AuthProvider({ apiBaseUrl, children }: AuthProviderProps) {
     async function bootstrapAuth() {
       try {
         const response = await refreshSession(apiBaseUrl);
-
-        if (isCancelled) {
-          return;
-        }
-
         applyAuthState(response.accessToken, response.user);
       } catch {
-        if (isCancelled) {
-          return;
-        }
-
         resetAuth();
       }
     }
@@ -112,7 +105,6 @@ export function AuthProvider({ apiBaseUrl, children }: AuthProviderProps) {
     void bootstrapAuth();
 
     return () => {
-      isCancelled = true;
       refreshInFlightRef.current = null;
     };
   }, [apiBaseUrl]);

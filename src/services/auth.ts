@@ -24,8 +24,7 @@ async function parseAuthSuccessResponse(response: Response) {
     typeof data.expiresIn !== "number" ||
     !data.user ||
     typeof data.user.id !== "string" ||
-    typeof data.user.username !== "string" ||
-    !Array.isArray(data.user.roles)
+    typeof data.user.username !== "string"
   ) {
     throw new Error("Backend response did not include a valid auth payload.");
   }
@@ -36,13 +35,6 @@ async function parseAuthSuccessResponse(response: Response) {
     user: {
       id: data.user.id,
       username: data.user.username,
-      displayName:
-        typeof data.user.displayName === "string"
-          ? data.user.displayName
-          : undefined,
-      roles: data.user.roles.filter(
-        (role): role is string => typeof role === "string",
-      ),
     },
   } satisfies AuthSuccessResponse;
 }
