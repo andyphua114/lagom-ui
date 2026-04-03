@@ -55,6 +55,12 @@ export function ChatPage({
     setSessionId(createSessionId());
   }, []);
 
+  function handleNewChat() {
+    setMessages([initialAssistantMessage]);
+    setError(null);
+    setSessionId(createSessionId());
+  }
+
   async function handleSendMessage(message: string) {
     const assistantMessageId = createMessageId();
     const userMessage: ChatMessage = {
@@ -138,46 +144,71 @@ export function ChatPage({
 
   return (
     <main className="flex min-h-screen flex-col">
-      <section className="flex-1 overflow-y-auto px-4 pb-40 pt-8 sm:px-6 sm:pt-10">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-          <header className="mx-auto w-full max-w-3xl px-1">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center rounded-full border border-white/70 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-500 shadow-[0_10px_35px_rgba(15,23,42,0.05)]">
-                  {settings.assistantName}
-                </div>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
-                  Ask a question, get the answer, and expand reasoning only when
-                  you want the details.
-                </p>
+      <div className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/75 px-2 py-3 backdrop-blur-xl sm:px-15">
+        <header className="mx-auto w-full">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="font-bold font-body text-xl relative -top-1">
+                {settings.assistantName}
               </div>
-
-              <div className="flex items-center gap-3">
-                <div className="hidden rounded-full border border-white/80 bg-white/80 px-4 py-2 text-sm text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.06)] sm:block">
-                  {user?.displayName ?? user?.username}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsSettingsOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:border-slate-200 hover:text-slate-900"
+              <button
+                type="button"
+                onClick={handleNewChat}
+                className="relative -top-1 flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1 font-bold text-white shadow-sm transition-colors hover:bg-slate-800 active:scale-95 duration-200"
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: 14 }}
                 >
-                  <span className="text-base leading-none">+</span>
-                  Settings
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => void logout()}
-                  className="inline-flex items-center rounded-full border border-slate-200 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-                >
-                  Log out
-                </button>
-              </div>
+                  add
+                </span>
+                <span className="text-[14px]">New Chat</span>
+              </button>
             </div>
-          </header>
 
+            <div className="flex items-center justify-between gap-4">
+              <div className="font-bold font-body text-sm text-slate-900 dark:text-slate-100 relative -top-1">
+                {user?.username ?? user?.id}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 rounded-full text-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors active:scale-95 duration-200"
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  settings
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void logout()}
+                className="p-2 rounded-full text-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors active:scale-95 duration-200"
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  logout
+                </span>
+              </button>
+            </div>
+          </div>
+        </header>
+      </div>
+
+      <section className="flex-1 overflow-y-auto px-4 pb-40 pt-8 sm:px-6">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
+            {messages.length === 1 && messages[0].id === "welcome" ? (
+              <h1 className="text-center text-5xl font-extrabold font-headline tracking-tighter text-on-surface">
+                Where should we start?
+              </h1>
+            ) : null}
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}

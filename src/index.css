@@ -1,11 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-label: "Inter", sans-serif;
+}
 
 :root {
   color: #122033;
   background:
     radial-gradient(circle at top, rgba(229, 236, 246, 0.9), transparent 36%),
     linear-gradient(180deg, #f7f8fb 0%, #eef2f7 100%);
-  font-family: Aptos, "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-family: "Manrope", sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;

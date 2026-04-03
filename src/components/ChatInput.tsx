@@ -33,15 +33,20 @@ export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
               void handleSubmit();
             }
           }}
-          className="max-h-40 min-h-[52px] flex-1 resize-none border-0 bg-transparent px-3 py-3 text-[15px] text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed"
+          className="max-h-40 min-h-[52px] flex-1 resize-none border-0 bg-transparent px-5 py-3 text-[15px] text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed"
         />
         <button
           type="button"
           disabled={disabled || !value.trim()}
           onClick={() => void handleSubmit()}
-          className="mr-2 inline-flex h-[40px] shrink-0 items-center justify-center rounded-[50px] bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="mr-2 inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
-          Send
+          <span
+            className="material-symbols-outlined"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
+            send
+          </span>
         </button>
       </div>
     </div>
