@@ -2,8 +2,16 @@ import type { ChatResponse } from "../types/chat";
 import type { ChatSettings } from "../types/settings";
 import { parseErrorResponse, type AuthenticatedFetch } from "./http";
 
+const PHASE_TYPES = new Set([
+  "processing",
+  "thinking",
+  "retrieving",
+  "generating",
+]);
+
 interface SendMessageOptions {
   onAnswerDelta?: (delta: string) => void;
+  onStatusUpdate?: (status: string) => void;
 }
 
 interface StreamEvent {
@@ -44,7 +52,12 @@ function applyStreamEvent(
   event: StreamEvent,
   currentResponse: ChatResponse,
   onAnswerDelta?: (delta: string) => void,
+  onStatusUpdate?: (status: string) => void,
 ) {
+  if (typeof event.type === "string" && PHASE_TYPES.has(event.type)) {
+    onStatusUpdate?.(event.type);
+  }
+
   if (typeof event.reasoning === "string") {
     currentResponse.reasoning = event.reasoning;
   }
@@ -72,6 +85,7 @@ function parseNdjsonBuffer(
   buffer: string,
   currentResponse: ChatResponse,
   onAnswerDelta?: (delta: string) => void,
+  onStatusUpdate?: (status: string) => void,
 ) {
   const lines = buffer.split(/\r?\n/);
   const remainder = lines.pop() ?? "";
@@ -90,7 +104,7 @@ function parseNdjsonBuffer(
       continue;
     }
 
-    applyStreamEvent(event, currentResponse, onAnswerDelta);
+    applyStreamEvent(event, currentResponse, onAnswerDelta, onStatusUpdate);
   }
 
   return {
@@ -103,6 +117,7 @@ function parseSseBuffer(
   buffer: string,
   currentResponse: ChatResponse,
   onAnswerDelta?: (delta: string) => void,
+  onStatusUpdate?: (status: string) => void,
 ) {
   const normalizedBuffer = buffer.replace(/\r\n/g, "\n");
   const events = normalizedBuffer.split("\n\n");
@@ -136,7 +151,7 @@ function parseSseBuffer(
       continue;
     }
 
-    applyStreamEvent(event, currentResponse, onAnswerDelta);
+    applyStreamEvent(event, currentResponse, onAnswerDelta, onStatusUpdate);
   }
 
   return {
@@ -168,8 +183,18 @@ async function parseStreamingResponse(
     buffer += decoder.decode(value, { stream: !done });
 
     const parsedChunk = useSse
-      ? parseSseBuffer(buffer, chatResponse, options.onAnswerDelta)
-      : parseNdjsonBuffer(buffer, chatResponse, options.onAnswerDelta);
+      ? parseSseBuffer(
+          buffer,
+          chatResponse,
+          options.onAnswerDelta,
+          options.onStatusUpdate,
+        )
+      : parseNdjsonBuffer(
+          buffer,
+          chatResponse,
+          options.onAnswerDelta,
+          options.onStatusUpdate,
+        );
 
     sawStreamEvent = sawStreamEvent || parsedChunk.sawEvent;
     buffer = parsedChunk.remainder;
@@ -191,11 +216,13 @@ async function parseStreamingResponse(
           `${remainingText}\n\n`,
           chatResponse,
           options.onAnswerDelta,
+          options.onStatusUpdate,
         )
       : parseNdjsonBuffer(
           `${remainingText}\n`,
           chatResponse,
           options.onAnswerDelta,
+          options.onStatusUpdate,
         );
 
     sawStreamEvent = sawStreamEvent || trailingEvent.sawEvent;

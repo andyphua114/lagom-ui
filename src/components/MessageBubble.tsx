@@ -30,7 +30,13 @@ export function MessageBubble({
           </p>
         ) : isPendingAssistant && !message.content ? (
           <div className="rounded-full border border-white/80 bg-white/90 px-4 py-2 text-sm text-slate-500 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
-            <span className="animate-loading">Thinking...</span>
+            <span className="animate-loading">
+              {message.status
+                ? message.status.charAt(0).toUpperCase() +
+                  message.status.slice(1) +
+                  "..."
+                : "Processing..."}
+            </span>
           </div>
         ) : (
           <MarkdownContent content={message.content} />

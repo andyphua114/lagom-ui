@@ -97,7 +97,17 @@ export function ChatPage({
                   ? {
                       ...currentMessage,
                       content: currentMessage.content + delta,
+                      status: undefined,
                     }
+                  : currentMessage,
+              ),
+            );
+          },
+          onStatusUpdate(status) {
+            setMessages((currentMessages) =>
+              currentMessages.map((currentMessage) =>
+                currentMessage.id === assistantMessageId
+                  ? { ...currentMessage, status }
                   : currentMessage,
               ),
             );

@@ -1,4 +1,4 @@
-export type MessageRole = 'user' | 'assistant';
+export type MessageRole = "user" | "assistant";
 
 export interface ChatMessage {
   id: string;
@@ -6,6 +6,7 @@ export interface ChatMessage {
   content: string;
   reasoning?: string;
   pending?: boolean;
+  status?: string;
 }
 
 export interface ChatResponse {
