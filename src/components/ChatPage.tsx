@@ -238,8 +238,14 @@ export function ChatPage({
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0">
+      <div className="fixed inset-x-0 bottom-0 border-t border-slate-200/80 bg-white px-2 py-1 backdrop-blur-xl">
         <ChatInput disabled={loading} onSend={handleSendMessage} />
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="pb-2 text-xs text-slate-600">
+            {settings.assistantName} is AI and can make mistakes. Please
+            double-check responses.
+          </p>
+        </div>
       </div>
 
       <SettingsModal

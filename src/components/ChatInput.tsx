@@ -19,7 +19,7 @@ export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
   }
 
   return (
-    <div className="border-t border-slate-200/80 bg-white/75 px-4 py-4 backdrop-blur-xl sm:px-6">
+    <div className="border-slate-200/80 bg-white px-4 py-4 backdrop-blur-xl sm:px-6">
       <div className="mx-auto flex max-w-3xl items-center gap-3 rounded-[50px] border border-slate-200 bg-white p-1 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
         <textarea
           rows={1}
