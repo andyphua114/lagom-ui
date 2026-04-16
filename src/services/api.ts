@@ -228,12 +228,16 @@ async function parseStreamingResponse(
     sawStreamEvent = sawStreamEvent || trailingEvent.sawEvent;
 
     if (trailingEvent.remainder.trim()) {
-      throw new Error("Backend stream ended with an incomplete event.");
+      throw new Error(
+        "There is an error. Please try again. If this persists, please contact helpdesk.",
+      );
     }
   }
 
   if (!chatResponse.answer) {
-    throw new Error("Backend stream did not contain a valid answer.");
+    throw new Error(
+      "There is an error. Please try again. If this persists, please contact helpdesk.",
+    );
   }
 
   return chatResponse;
