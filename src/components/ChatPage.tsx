@@ -49,7 +49,7 @@ export function ChatPage({
   const [error, setError] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
-  const endRef = useAutoScroll([messages, loading, error]);
+  const containerRef = useAutoScroll([messages, loading, error]);
 
   useEffect(() => {
     setSessionId(createSessionId());
@@ -153,7 +153,7 @@ export function ChatPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="flex h-screen flex-col">
       <div className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/75 px-2 py-3 backdrop-blur-xl sm:px-15">
         <header className="mx-auto w-full">
           <div className="flex items-center justify-between gap-4">
@@ -211,7 +211,10 @@ export function ChatPage({
         </header>
       </div>
 
-      <section className="flex-1 overflow-y-auto px-4 pb-40 pt-8 sm:px-6">
+      <section
+        ref={containerRef}
+        className="flex-1 overflow-y-auto px-4 pb-6 pt-8 sm:px-6"
+      >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
             {messages.length === 1 && messages[0].id === "welcome" ? (
@@ -232,13 +235,11 @@ export function ChatPage({
                 {error}
               </div>
             ) : null}
-
-            <div ref={endRef} />
           </div>
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-slate-200/80 bg-white px-2 py-1 backdrop-blur-xl">
+      <div className="border-t border-slate-200/80 bg-white px-2 py-1">
         <ChatInput disabled={loading} onSend={handleSendMessage} />
         <div className="mx-auto max-w-4xl text-center">
           <p className="pb-2 text-xs text-slate-600">
