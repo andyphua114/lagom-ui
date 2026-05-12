@@ -24,13 +24,22 @@ export function MarkdownContent({
         "prose-code:before:content-none prose-code:after:content-none",
         "prose-pre:font-mono prose-pre:text-[13px] prose-pre:leading-6",
         "prose-strong:text-inherit prose-a:text-blue-600 hover:prose-a:text-blue-500",
-        "prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-blockquote:border-slate-300 prose-blockquote:text-inherit",
+        "prose-ul:my-3 prose-ul:list-disc prose-ul:pl-6 prose-ol:my-3 prose-ol:list-decimal prose-ol:pl-6 prose-li:my-1 prose-blockquote:border-slate-300 prose-blockquote:text-inherit",
         proseTone,
       ].join(" ")}
     >
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
         components={{
+          ul({ children }) {
+            return <ul className="my-3 list-disc pl-6">{children}</ul>;
+          },
+          ol({ children }) {
+            return <ol className="my-3 list-decimal pl-6">{children}</ol>;
+          },
+          li({ children }) {
+            return <li className="my-1">{children}</li>;
+          },
           pre({ children }) {
             return (
               <div className="my-4 max-w-full overflow-x-auto rounded-2xl bg-slate-950">

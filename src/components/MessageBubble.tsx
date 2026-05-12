@@ -13,6 +13,8 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const isUser = message.role === "user";
   const isPendingAssistant = !isUser && message.pending;
+  const enableDropdown =
+    import.meta.env.VITE_ENABLE_REASONING_DROPDOWN === "true";
 
   return (
     <div className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}>
@@ -25,9 +27,9 @@ export function MessageBubble({
         ].join(" ")}
       >
         {isUser ? (
-          <p className="whitespace-pre-wrap text-[15px] leading-7">
+          <div className="whitespace-pre-wrap text-[15px] leading-7">
             {message.content}
-          </p>
+          </div>
         ) : isPendingAssistant && !message.content ? (
           <div className="rounded-full border border-white/80 bg-white/90 px-4 py-2 text-sm text-slate-500 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
             <span className="animate-loading">
@@ -41,7 +43,7 @@ export function MessageBubble({
         ) : (
           <MarkdownContent content={message.content} />
         )}
-        {!isUser && message.reasoning ? (
+        {!isUser && message.reasoning && enableDropdown ? (
           <ReasoningDropdown
             reasoning={message.reasoning}
             defaultOpen={defaultExpandReasoning}

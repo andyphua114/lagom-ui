@@ -5,6 +5,7 @@ import { parseErrorResponse, type AuthenticatedFetch } from "./http";
 const PHASE_TYPES = new Set([
   "processing",
   "thinking",
+  "refining",
   "retrieving",
   "generating",
 ]);
