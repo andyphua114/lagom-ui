@@ -2,10 +2,17 @@ import { useState } from "react";
 
 interface ChatInputProps {
   disabled?: boolean;
+  isLoading?: boolean;
   onSend: (message: string) => Promise<void> | void;
+  onStop?: () => void;
 }
 
-export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
+export function ChatInput({
+  disabled = false,
+  isLoading = false,
+  onSend,
+  onStop,
+}: ChatInputProps) {
   const [value, setValue] = useState("");
 
   async function handleSubmit() {
@@ -35,19 +42,34 @@ export function ChatInput({ disabled = false, onSend }: ChatInputProps) {
           }}
           className="max-h-40 min-h-[52px] flex-1 resize-none border-0 bg-transparent px-5 py-3 text-[15px] text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed"
         />
-        <button
-          type="button"
-          disabled={disabled || !value.trim()}
-          onClick={() => void handleSubmit()}
-          className="mr-2 inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontVariationSettings: "'FILL' 1" }}
+        {isLoading ? (
+          <button
+            type="button"
+            onClick={() => onStop?.()}
+            className="mr-2 inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-medium text-white transition-all duration-200 hover:scale-105 hover:bg-slate-700"
           >
-            send
-          </span>
-        </button>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              stop
+            </span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={disabled || !value.trim()}
+            onClick={() => void handleSubmit()}
+            className="mr-2 inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              send
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );

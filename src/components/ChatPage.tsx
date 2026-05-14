@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { sendMessage } from "../services/api";
@@ -46,6 +46,7 @@ export function ChatPage({
     initialAssistantMessage,
   ]);
   const [loading, setLoading] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
@@ -59,6 +60,10 @@ export function ChatPage({
     setMessages([initialAssistantMessage]);
     setError(null);
     setSessionId(createSessionId());
+  }
+
+  function handleStop() {
+    abortControllerRef.current?.abort();
   }
 
   async function handleSendMessage(message: string) {
@@ -83,6 +88,9 @@ export function ChatPage({
     ]);
     setLoading(true);
 
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     try {
       const response = await sendMessage(
         message,
@@ -90,6 +98,7 @@ export function ChatPage({
         sessionId,
         authenticatedFetch,
         {
+          signal: abortController.signal,
           onAnswerDelta(delta) {
             setMessages((currentMessages) =>
               currentMessages.map((currentMessage) =>
@@ -128,10 +137,17 @@ export function ChatPage({
         ),
       );
     } catch (caughtError) {
-      const messageText =
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Something went wrong while contacting the assistant.";
+      const isAbort =
+        caughtError instanceof DOMException &&
+        caughtError.name === "AbortError";
+
+      if (!isAbort) {
+        const messageText =
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Something went wrong while contacting the assistant.";
+        setError(messageText);
+      }
 
       setMessages((currentMessages) =>
         currentMessages
@@ -146,7 +162,6 @@ export function ChatPage({
               : currentMessage,
           ),
       );
-      setError(messageText);
     } finally {
       setLoading(false);
     }
@@ -240,7 +255,12 @@ export function ChatPage({
       </section>
 
       <div className="border-t border-slate-200/80 bg-white px-2 py-1">
-        <ChatInput disabled={loading} onSend={handleSendMessage} />
+        <ChatInput
+          disabled={loading}
+          isLoading={loading}
+          onSend={handleSendMessage}
+          onStop={handleStop}
+        />
         <div className="mx-auto max-w-4xl text-center">
           <p className="pb-2 text-xs text-slate-600">
             {settings.assistantName} is AI and can make mistakes. Please

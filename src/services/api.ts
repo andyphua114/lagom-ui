@@ -13,6 +13,7 @@ const PHASE_TYPES = new Set([
 interface SendMessageOptions {
   onAnswerDelta?: (delta: string) => void;
   onStatusUpdate?: (status: string) => void;
+  signal?: AbortSignal;
 }
 
 interface StreamEvent {
@@ -257,6 +258,7 @@ export async function sendMessage(
     response = await authenticatedFetch(settings.chatPath, {
       method: "POST",
       body: JSON.stringify({ message, sessionId }),
+      signal: options.signal,
     });
   } catch {
     throw new Error(
